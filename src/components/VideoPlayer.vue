@@ -15,6 +15,9 @@ require("../assets/js/thumbnails/videojs.thumbnails.css");
 require("../assets/js/thumbnails/videojs.thumbnails");
 export default {
   name: "VideoPlayer",
+  props: {
+    currentTime: Number
+  },
   data() {
     return {
       snackbar: false,
@@ -95,6 +98,7 @@ export default {
         this["thumbnails"](thumbnails, timelinePreviewUrl);
       });
     });
+    this.player.currentTime(this.currentTime);
   },
   beforeDestroy() {
     if (this.player) this.player.dispose();

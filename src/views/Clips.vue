@@ -1,0 +1,65 @@
+<template>
+  <div>
+    <v-container fluid grid-list-md>
+      <v-layout wrap>
+        <v-flex xs12 md9 class="mb-4">
+          <v-img :aspect-ratio="16 / 9">
+            <v-layout column fill-height>
+              <video-player @info="updateInfo" autoplay v-bind:currentTime="300" />
+            </v-layout>
+          </v-img>
+        </v-flex>
+        <v-flex xs12 md3 class="mb-4">
+          <v-layout wrap>
+            <v-flex xs8 md12 class="title">{{ stream.title }}</v-flex>
+            <v-flex xs4 md12 class="subtitle-2 font-italic text-xs-right text-md-left">{{ stream.game }}</v-flex>
+            <v-flex xs12 md12 class="subtitle-1">{{ dateString }}</v-flex>
+            <v-flex xs12 md12 class="subtitle-1">{{ getVideoTime }}</v-flex>
+          </v-layout>
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </div>
+</template>
+<script>
+import VideoPlayer from "@/components/VideoPlayer";
+export default {
+  components: { VideoPlayer },
+  data() {
+    return {
+      stream: {}
+    };
+  },
+  computed: {
+    getVideoTime() {
+      return 0;
+    },
+    dateString() {
+      let months = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+      if (!this.stream.date) return;
+      let [day, index, year] = this.stream.date
+        .split("T")[0]
+        .split("-")
+        .reverse();
+      return day + " " + months[index - 1] + " " + year;
+    },
+    headerImage() {
+      try {
+        return require(`@/assets/img/header/${this.$route.params.streamer}.jpg`);
+      } catch (e) {
+        return null;
+      }
+    }
+  },
+  methods: {
+    updateInfo(info) {
+      this.stream = info;
+      document.title =
+        info.title +
+        " | " +
+        this.$route.params.streamer.toUpperCase() +
+        " | StreamArchive - ЛУЧШИЙ АРХИВ ВО ВСЕЛЕННОЙ КСТА";
+    }
+  }
+};
+</script>
