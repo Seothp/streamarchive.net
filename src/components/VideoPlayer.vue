@@ -31,6 +31,17 @@ export default {
       }
     };
   },
+  methods: {
+    switchCurrentVideoTimeStatus() {
+      this.$store.commit("switchCurrentVideoTimeStatus");
+    },
+    updateCurrentVideoTime(time) {
+      this.$store.commit("updateCurrentVideoTime", time);
+    },
+    handleDurationChange() {
+      this.updateCurrentVideoTime(this.player.currentTime());
+    }
+  },
   mounted() {
     let streamer = this.$route.params.streamer;
     let uuid = this.$route.params.uuid;
@@ -95,13 +106,24 @@ export default {
         this["thumbnails"](thumbnails, timelinePreviewUrl);
       });
     });
-    this.trackCurrentTime = setInterval(
-      () => this.$store.commit("updateCurrentVideoTime", this.player.currentTime()),
-      500
-    );
+    console.log(this.player);
+    this.player.on("pause", this.switchCurrentVideoTimeStatus);
+    this.player.on("play", this.switchCurrentVideoTimeStatus);
+    this.player.on("durationchange", this.handleDurationChange);
+    this.trackCurrentTime = setInterval(() => {
+      const currentTime = this.$store.state.currentVideoTime;
+      const isTracking = this.$store.state.trackVideoTimeStatus;
+      if (Math.abs(currentTime - this.player.currentTime()) > 2 && isTracking) this.player.currentTime(currentTime);
+      this.updateCurrentVideoTime(this.player.currentTime());
+    }, 1000);
   },
   beforeDestroy() {
-    if (this.player) this.player.dispose();
+    if (this.player) {
+      this.player.dispose();
+      this.player.off("pause", this.switchCurrentVideoTimeStatus);
+      this.player.off("play", this.switchCurrentVideoTimeStatus);
+      this.player.off("durationchange", this.handleDurationChange);
+    }
     clearInterval(this.trackCurrentTime);
   }
 };

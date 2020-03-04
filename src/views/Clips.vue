@@ -28,7 +28,14 @@
             <v-flex xs8 md12 class="title">{{ stream.title }}</v-flex>
             <v-flex xs4 md12 class="subtitle-2 font-italic text-xs-right text-md-left">{{ stream.game }}</v-flex>
             <v-flex xs12 md12 class="subtitle-1">{{ dateString }}</v-flex>
-            <v-flex xs12 md12 class="subtitle-1"></v-flex>
+            <v-flex xs12 md12 class="subtitle-1">{{ Math.round(currentVideoTime) }}</v-flex>
+            <input
+              type="number"
+              :value="Math.round(currentVideoTime)"
+              @input="handleInput"
+              @focus="handleInputFocus"
+              @blur="handleInputBlur"
+            />
           </v-layout>
         </v-flex>
       </v-layout>
@@ -45,6 +52,9 @@ export default {
     };
   },
   computed: {
+    currentVideoTime() {
+      return this.$store.state.currentVideoTime;
+    },
     getVideoTime() {
       return 0;
     },
@@ -66,6 +76,22 @@ export default {
     }
   },
   methods: {
+    handleInputBlur({ target: { value } }) {
+      this.switchCurrentVideoTimeStatus();
+      this.updateCurrentTime(value);
+    },
+    handleInputFocus() {
+      this.switchCurrentVideoTimeStatus();
+    },
+    handleInput({ target: { value } }) {
+      this.updateCurrentTime(value);
+    },
+    switchCurrentVideoTimeStatus() {
+      this.$store.commit("switchCurrentVideoTimeStatus");
+    },
+    updateCurrentTime(time) {
+      this.$store.commit("updateCurrentVideoTime", Math.round(time));
+    },
     updateInfo(info) {
       this.stream = info;
       document.title =

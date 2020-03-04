@@ -7,11 +7,16 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 const state = {
-  currentVideoTime: 0
+  currentVideoTime: 0,
+  trackVideoTimeStatus: false
 };
 const mutations = {
   updateCurrentVideoTime(state, time) {
-    state.currentVideoTime = time;
+    console.log("updated", time);
+    if (state.trackVideoTimeStatus) state.currentVideoTime = time;
+  },
+  switchCurrentVideoTimeStatus(state) {
+    state.trackVideoTimeStatus = !state.trackVideoTimeStatus;
   }
 };
 const actions = {};
