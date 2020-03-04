@@ -70,7 +70,6 @@ export default {
         }
       });
       videojs.registerComponent("badge", badge);
-
       let controlBar = this.controlBar;
 
       controlBar.addChild("shareButton");
@@ -82,7 +81,6 @@ export default {
       let insertedBadge = controlBar.getChild("badge").el();
       let spacer = controlBar.getChild("customControlSpacer").el();
       controlBar.el().insertBefore(insertedBadge, spacer);
-
       // noinspection JSUnresolvedFunction
       this.hotkeys({
         volumeStep: 0.1,
@@ -90,7 +88,6 @@ export default {
         alwaysCaptureHotkeys: true,
         enableModifiersForNumbers: false
       });
-
       axios.get(process.env.VUE_APP_URL + url).then(response => {
         vm.$emit("info", response.data);
         let thumbnails = {};
@@ -98,10 +95,14 @@ export default {
         this["thumbnails"](thumbnails, timelinePreviewUrl);
       });
     });
-    this.player.currentTime(this.currentTime);
+    this.trackCurrentTime = setInterval(
+      () => this.$store.commit("updateCurrentVideoTime", this.player.currentTime()),
+      500
+    );
   },
   beforeDestroy() {
     if (this.player) this.player.dispose();
+    clearInterval(this.trackCurrentTime);
   }
 };
 </script>
