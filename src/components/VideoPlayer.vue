@@ -39,7 +39,7 @@ export default {
 
     let url = `/streams/${uuid}`;
     let timelinePreviewUrl = `${baseUrl}/streams/${streamer}/${uuid}/timeline_preview/`;
-    this.options.sources[0].src = `${baseUrl}/streams/${streamer}/${uuid}/index-dvr.m3u8`;
+    this.options.sources[0].src = `${baseUrl}/streams/${streamer}/${uuid}/chunked/index-dvr.m3u8`;
 
     this.player = videojs(this.$refs.videoPlayer, this.options, function() {
       let Button = videojs.getComponent("Button");

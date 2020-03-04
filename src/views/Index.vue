@@ -1,16 +1,17 @@
 <template>
   <div>
-    <div class="d-inline-flex" style="position: relative">
+    <div class="d-inline-flex" style="position: relative" ref="page">
       <v-btn absolute fab flat class="toInfo" @click="$vuetify.goTo('#info')"><v-icon>arrow_downward</v-icon></v-btn>
-      <v-hover class="pointer" v-for="streamer in $streamers" :key="streamer" style="height: 100vh">
+      <v-hover class="pointer" v-for="[streamer, url] in streamers" :key="streamer" style="height: 100vh">
         <v-card
           slot-scope="{ hover }"
-          :width="window.width / $streamers.length"
+          :width="window.width / streamersLength"
           style="height: 100vh; border-radius: 0"
           class="elevation-0"
+          ref="card"
         >
           <router-link :to="`/${streamer}`" tag="div" style="height: 100vh">
-            <v-img :src="require(`@/assets/img/main/${streamer}.jpg`)" style="height: 100vh">
+            <v-img :src="`${url}/img/${streamer}/main.jpg`" style="height: 100vh" v-on:error="handleImageError">
               <template v-slot:placeholder>
                 <v-layout fill-height align-center justify-center ma-0>
                   <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
@@ -41,7 +42,7 @@
     </div>
     <v-container fluid id="info">
       <div class="headline text-xs-center font-weight-bold text-uppercase fill-width">StreamArchive</div>
-      <span class="display-1 d-block">О проекте</span>
+      <h2 class="display-1 d-block main-page-subtitle">О проекте</h2>
       <span class="body-1 d-block pb-3">
         Всем драсьте. Мы - маленькая команда OpenStreamArchive. Месяцы работы, тонны перекопанного кода (спасибо твичу)
         и вот он - StreamArchive. Идея проекта родилась когда мы потеряли звук части стрима с распаковкой альбома с
@@ -51,7 +52,7 @@
         говна и палок, лежавших без дела.
       </span>
 
-      <span class="display-1 d-block">Вставка для экспертов IT</span>
+      <h2 class="display-1 d-block main-page-subtitle">Вставка для экспертов IT</h2>
       <span class="body-1 d-block pb-3">
         Заливать на youtube бесполезно. Мы проверяли. 43 страйка из них 3 блокировки на 5 часовой стрим. И разгребать
         весь контент, что-то подменять и вырезать вручную при таких объемах вряд ли реализуемо в адекватные сроки.
@@ -60,28 +61,28 @@
         выслушаем.
       </span>
 
-      <span class="display-1 d-block">Зачем это всё нужно?</span>
+      <h2 class="display-1 d-block main-page-subtitle">Зачем это всё нужно?</h2>
       <span class="body-1 d-block pb-3">
         Потому что Твич хранит стримы 60 дней по партнёрке и 15 без неё. Так же в сохраненных видео у стримера могут
         быть пропущены фрагменты звука из-за прав на музыку.
       </span>
 
-      <span class="display-1 d-block">Зачем нам деньги?</span>
+      <h2 class="display-1 d-block main-page-subtitle">Зачем нам деньги?</h2>
       <span class="body-1 d-block pb-3">
-        Нужен нормальный ИБП. Так же на свет (100кв⋅ч в месяц) и интернет (ибо канал 400мб/c для личного пользования не
-        нужен) примерно 30$. И банально на пиво и прочие личные расходы, ибо времени уходит прилично, но это уже на
-        сдачу с железа.
+        Поскольку схема с хранением записей на домашнем сервере оказалась ненадёжной, было принято решение арендовать
+        сервер с большим объёмом хранилища. В общей сложности сейчас это стоит около €80/мес и по мере накопления
+        записей стоимость будет расти.
       </span>
 
-      <span class="display-1 d-block">Вопросы и предложения</span>
+      <h2 class="display-1 d-block main-page-subtitle">Вопросы и предложения</h2>
       <span class="body-1 d-block pb-3">
         <span class="d-block">
           Вопросы и пожелания вы можете пистать в лс -
-          <a href="https://t.me/ohhHiMark" target="_blank" class="link bold">ohhHiMark</a>
+          <a href="https://t.me/de_morgan" target="_blank" class="link bold">de_morgan</a>
         </span>
         <span class="d-block">Если вы хотите добавить стримера на хаб пишите ему же.</span>
         <span class="d-block">Рекордер/бэкэнд - DedKim</span>
-        <span class="d-block">Фронтэнд - ohhHiMark, peyoter</span>
+        <span class="d-block">Фронтэнд - ohhHiMark, peyoter, Ejento</span>
         <span class="d-block">DevOps - sadmonad, DedKim</span>
         <span class="d-block">Дизайн - Anulyev, Bathammer, ohhHiMark</span>
         <span class="d-block">Тестирование - iamien1993, de_morgan</span>
@@ -103,7 +104,8 @@ export default {
       window: {
         width: 0,
         height: 0
-      }
+      },
+      streamersLength: Object.entries(this.$endpoints).length
     };
   },
   created() {
@@ -118,6 +120,20 @@ export default {
     handleResize() {
       this.window.width = window.innerWidth;
       this.window.height = window.innerHeight;
+    },
+    handleImageError: function(src) {
+      const card = this.$refs.card[0];
+      const imgSrc = this.$refs.card[0].$children[0].$children[0].$props.src;
+      if (imgSrc === src) {
+        card.$el.style.display = "none";
+        this.streamersLength--;
+      }
+    }
+  },
+  computed: {
+    streamers: function() {
+      const streamers = Object.entries(this.$endpoints);
+      return streamers;
     }
   }
 };

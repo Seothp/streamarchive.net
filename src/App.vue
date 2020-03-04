@@ -13,7 +13,7 @@
 export default {
   methods: {
     openDonation() {
-      let win = window.open("https://www.donationalerts.ru/r/pingwinno", "_blank");
+      let win = window.open("https://www.donationalerts.com/r/morgan008", "_blank");
       win.focus();
     }
   }
