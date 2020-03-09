@@ -8,12 +8,14 @@ Vue.use(Vuex);
 
 const state = {
   currentVideoTime: 0,
-  trackVideoTimeStatus: false
+  trackVideoTimeStatus: true
 };
 const mutations = {
   updateCurrentVideoTime(state, time) {
-    console.log("updated", time);
     if (state.trackVideoTimeStatus) state.currentVideoTime = time;
+  },
+  setCurrentVideoTimeStatus(state, trackStatus) {
+    state.trackVideoTimeStatus = trackStatus;
   },
   switchCurrentVideoTimeStatus(state) {
     state.trackVideoTimeStatus = !state.trackVideoTimeStatus;

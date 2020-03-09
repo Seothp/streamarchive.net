@@ -28,7 +28,6 @@
             <v-flex xs8 md12 class="title">{{ stream.title }}</v-flex>
             <v-flex xs4 md12 class="subtitle-2 font-italic text-xs-right text-md-left">{{ stream.game }}</v-flex>
             <v-flex xs12 md12 class="subtitle-1">{{ dateString }}</v-flex>
-            <v-flex xs12 md12 class="subtitle-1">{{ Math.round(currentVideoTime) }}</v-flex>
             <input
               type="number"
               :value="Math.round(currentVideoTime)"
@@ -36,6 +35,7 @@
               @focus="handleInputFocus"
               @blur="handleInputBlur"
             />
+            <input xs12 md12 class="subtitle-1" :value="endClipTime" />
           </v-layout>
         </v-flex>
       </v-layout>
@@ -48,7 +48,8 @@ export default {
   components: { VideoPlayer },
   data() {
     return {
-      stream: {}
+      stream: {},
+      endClipTime: 0
     };
   },
   computed: {
@@ -100,6 +101,9 @@ export default {
         this.$route.params.streamer.toUpperCase() +
         " | StreamArchive - ЛУЧШИЙ АРХИВ ВО ВСЕЛЕННОЙ КСТА";
     }
+  },
+  mounted() {
+    this.endClipTime = Math.round(this.currentVideoTime) + 30;
   }
 };
 </script>

@@ -38,8 +38,15 @@ export default {
     updateCurrentVideoTime(time) {
       this.$store.commit("updateCurrentVideoTime", time);
     },
+    setCurrentVideoTimeStatus(trustStatus) {
+      this.$store.commit("setCurrentVideoTimeStatus", trustStatus);
+    },
     handleDurationChange() {
+      this.switchCurrentVideoTimeStatus();
       this.updateCurrentVideoTime(this.player.currentTime());
+    },
+    handlePlaying() {
+      this.setCurrentVideoTimeStatus(true);
     }
   },
   mounted() {
@@ -106,10 +113,8 @@ export default {
         this["thumbnails"](thumbnails, timelinePreviewUrl);
       });
     });
-    console.log(this.player);
-    this.player.on("pause", this.switchCurrentVideoTimeStatus);
-    this.player.on("play", this.switchCurrentVideoTimeStatus);
-    this.player.on("durationchange", this.handleDurationChange);
+    this.player.on("timeupdate", this.handleDurationChange);
+    this.player.on("playing", this.handlePlaying);
     this.trackCurrentTime = setInterval(() => {
       const currentTime = this.$store.state.currentVideoTime;
       const isTracking = this.$store.state.trackVideoTimeStatus;
@@ -120,9 +125,8 @@ export default {
   beforeDestroy() {
     if (this.player) {
       this.player.dispose();
-      this.player.off("pause", this.switchCurrentVideoTimeStatus);
-      this.player.off("play", this.switchCurrentVideoTimeStatus);
-      this.player.off("durationchange", this.handleDurationChange);
+      this.player.off("timeupdate", this.handleDurationChange);
+      this.player.off("playing", this.handlePlaying);
     }
     clearInterval(this.trackCurrentTime);
   }
